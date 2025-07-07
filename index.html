@@ -1,63 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>🚀 EnergyTron – TRON Energy Tool</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora TRX ⇄ Energía</title>
   <style>
     body {
+      font-family: Arial, sans-serif;
       background-color: #0d1117;
       color: #c9d1d9;
-      font-family: Arial, sans-serif;
       padding: 2rem;
     }
-    h1 {
+    h1, h2 {
       color: #58a6ff;
     }
-    input, button {
+    label, textarea, input, select {
+      display: block;
+      margin: 1rem 0 0.5rem;
       width: 100%;
-      padding: 0.6rem;
-      margin: 0.5rem 0;
+    }
+    textarea, input, select {
+      padding: 0.5rem;
       background-color: #161b22;
-      color: white;
       border: 1px solid #30363d;
-      border-radius: 4px;
+      color: #c9d1d9;
     }
-    button {
-      background-color: #238636;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #2ea043;
+    .result {
+      margin-top: 1rem;
+      font-weight: bold;
     }
     .box {
       background: #161b22;
       padding: 1rem;
       border-radius: 0.5rem;
-      margin-top: 1rem;
+      margin-top: 2rem;
+    }
+    button {
+      background: #238636;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+    button:hover {
+      background: #2ea043;
     }
   </style>
 </head>
 <body>
+  <h1>Calculadora de Energía TRON (USDT)</h1>
 
-  <h1>🚀 EnergyTron – TRON Energy Tool</h1>
+  <div class="box">
+    <label for="addresses">Pega aquí las direcciones TRON (una por línea):</label>
+    <textarea id="addresses" rows="6" placeholder="TXXXXXX...
+TYYYYYY...
+..."></textarea>
 
-  <div class="box" id="resultado">Esperando conexión a TronLink...</div>
+    <label for="tipoTransaccion">Tipo de transacción:</label>
+    <select id="tipoTransaccion">
+      <option value="65000">Estándar (65,000 energía)</option>
+      <option value="130000">Contratos pesados (130,000 energía)</option>
+    </select>
 
-  <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.min.js"></script>
+    <button onclick="calcularEnergia()">Calcular</button>
+    <div class="result" id="resultadoDirecciones"></div>
+  </div>
+
+  <div class="box">
+    <h2>Conversor TRX ⇄ Energía</h2>
+
+    <label for="inputTrx">TRX a enviar:</label>
+    <input type="number" id="inputTrx" placeholder="Ej: 10" oninput="convertirTrxAEnergia()">
+    <div class="result" id="energiaDesdeTrx"></div>
+
+    <label for="inputEnergy">Energía deseada:</label>
+    <input type="number" id="inputEnergy" placeholder="Ej: 128000" oninput="convertirEnergiaATrx()">
+    <div class="result" id="trxDesdeEnergia"></div>
+  </div>
+
   <script>
-    const checkTronWebReady = setInterval(() => {
-      if (window.tronWeb && window.tronWeb.defaultAddress.base58 !== 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb') {
-        clearInterval(checkTronWebReady);
-        const address = tronWeb.defaultAddress.base58;
-        document.getElementById("resultado").innerHTML = `
-          ✅ Conectado con:<br><strong>${address}</strong>
-        `;
-      } else {
-        document.getElementById("resultado").innerText = "🔌 TronLink está abierto pero no ha autorizado aún.";
-      }
-    }, 1000);
-  </script>
+    const energiaPorTRX = 18700;
 
+    function validarDireccion(dir) {
+      return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(dir);
+    }
+
+    function calcularEnergia() {
+      const texto = document.getElementById("addresses").value.trim();
+      const tipo = parseInt(document.getElementById("tipoTransaccion").value);
+      const lineas = texto.split(/\n|,/).map(d => d.trim()).filter(Boolean);
+      const validas = lineas.filter(validarDireccion);
+      const energiaTotal = validas.length * tipo;
+      const trxNecesarios = (energiaTotal / energiaPorTRX).toFixed(2);
+
+      document.getElementById("resultadoDirecciones").innerHTML = `
+        Direcciones válidas: <strong>${validas.length}</strong><br>
+        Energía total requerida: <strong>${energiaTotal.toLocaleString()}</strong><br>
+        TRX necesarios: <strong>${trxNecesarios}</strong>
+      `;
+    }
+
+    function convertirTrxAEnergia() {
+      const trx = parseFloat(document.getElementById("inputTrx").value);
+      const energia = isNaN(trx) ? "" : `→ Recibirás aproximadamente <strong>${Math.round(trx * energiaPorTRX).toLocaleString()}</strong> energía`;
+      document.getElementById("energiaDesdeTrx").innerHTML = energia;
+    }
+
+    function convertirEnergiaATrx() {
+      const energia = parseFloat(document.getElementById("inputEnergy").value);
+      const trx = isNaN(energia) ? "" : `→ Necesitas enviar aproximadamente <strong>${(energia / energiaPorTRX).toFixed(2)}</strong> TRX`;
+      document.getElementById("trxDesdeEnergia").innerHTML = trx;
+    }
+  </script>
 </body>
 </html>
 
