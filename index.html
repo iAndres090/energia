@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>🚀 EnergyTron – TRON Energy Tool</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    h1 {
+      color: #58a6ff;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      background-color: #161b22;
+      color: white;
+      border: 1px solid #30363d;
+    }
+    button {
+      background-color: #238636;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2ea043;
+    }
+    .box {
+      background: #161b22;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 EnergyTron – TRON Energy Tool</h1>
+
+  <button onclick="verBalance()">Ver mi balance TRX</button>
+
+  <div class="box" id="resultado">Conéctate con TronLink para empezar</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.min.js"></script>
+  <script>
+    async function verBalance() {
+      if (typeof window.tronWeb === 'undefined' || !tronWeb.defaultAddress.base58) {
+        document.getElementById("resultado").innerText = "❌ TronLink no está conectado. Asegúrate de tenerlo instalado y abierto.";
+        return;
+      }
+
+      const address = tronWeb.defaultAddress.base58;
+      const balanceSun = await tronWeb.trx.getBalance(address);
+      const balanceTRX = tronWeb.fromSun(balanceSun);
+
+      document.getElementById("resultado").innerHTML = `
+        👛 Dirección: <strong>${address}</strong><br>
+        💰 Balance: <strong>${balanceTRX} TRX</strong>
+      `;
+    }
+  </script>
+</body>
+</html>
