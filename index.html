@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🚀 EnergyTron – TRON Energy Tool</title>
   <style>
     body {
@@ -15,15 +16,15 @@
     }
     input, button {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.6rem;
       margin: 0.5rem 0;
       background-color: #161b22;
       color: white;
       border: 1px solid #30363d;
+      border-radius: 4px;
     }
     button {
       background-color: #238636;
-      border: none;
       cursor: pointer;
     }
     button:hover {
@@ -38,29 +39,43 @@
   </style>
 </head>
 <body>
+
   <h1>🚀 EnergyTron – TRON Energy Tool</h1>
 
-  <button onclick="verBalance()">Ver mi balance TRX</button>
+  <!-- 🔌 Botón para conectar con TronLink -->
+  <button onclick="conectarTronLink()">🔌 Conectar TronLink</button>
 
-  <div class="box" id="resultado">Conéctate con TronLink para empezar</div>
+  <!-- 📦 Aquí mostramos el resultado -->
+  <div class="box" id="resultado">Esperando conexión a TronLink...</div>
 
+  <!-- Cargamos TronWeb desde CDN -->
   <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.min.js"></script>
+
+  <!-- Código para conexión -->
   <script>
-    async function verBalance() {
-      if (typeof window.tronWeb === 'undefined' || !tronWeb.defaultAddress.base58) {
-        document.getElementById("resultado").innerText = "❌ TronLink no está conectado. Asegúrate de tenerlo instalado y abierto.";
-        return;
+    async function conectarTronLink() {
+      try {
+        if (typeof window.tronLink === "undefined") {
+          document.getElementById("resultado").innerText = "❌ TronLink no está instalado.";
+          return;
+        }
+
+        await window.tronLink.request({ method: 'tron_requestAccounts' });
+
+        const checkReady = setInterval(() => {
+          if (window.tronWeb && tronWeb.defaultAddress.base58) {
+            clearInterval(checkReady);
+            const address = tronWeb.defaultAddress.base58;
+            document.getElementById("resultado").innerHTML = `
+              ✅ Conectado con:<br><strong>${address}</strong>
+            `;
+          }
+        }, 500);
+      } catch (err) {
+        document.getElementById("resultado").innerText = "❌ Error al conectar: " + err.message;
       }
-
-      const address = tronWeb.defaultAddress.base58;
-      const balanceSun = await tronWeb.trx.getBalance(address);
-      const balanceTRX = tronWeb.fromSun(balanceSun);
-
-      document.getElementById("resultado").innerHTML = `
-        👛 Dirección: <strong>${address}</strong><br>
-        💰 Balance: <strong>${balanceTRX} TRX</strong>
-      `;
     }
   </script>
+
 </body>
 </html>
