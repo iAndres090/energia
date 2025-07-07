@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🚀 EnergyTron – TRON Energy Tool</title>
   <style>
     body {
@@ -42,40 +41,23 @@
 
   <h1>🚀 EnergyTron – TRON Energy Tool</h1>
 
-  <!-- 🔌 Botón para conectar con TronLink -->
-  <button onclick="conectarTronLink()">🔌 Conectar TronLink</button>
-
-  <!-- 📦 Aquí mostramos el resultado -->
   <div class="box" id="resultado">Esperando conexión a TronLink...</div>
 
-  <!-- Cargamos TronWeb desde CDN -->
   <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.min.js"></script>
-
-  <!-- Código para conexión -->
   <script>
-    async function conectarTronLink() {
-      try {
-        if (typeof window.tronLink === "undefined") {
-          document.getElementById("resultado").innerText = "❌ TronLink no está instalado.";
-          return;
-        }
-
-        await window.tronLink.request({ method: 'tron_requestAccounts' });
-
-        const checkReady = setInterval(() => {
-          if (window.tronWeb && tronWeb.defaultAddress.base58) {
-            clearInterval(checkReady);
-            const address = tronWeb.defaultAddress.base58;
-            document.getElementById("resultado").innerHTML = `
-              ✅ Conectado con:<br><strong>${address}</strong>
-            `;
-          }
-        }, 500);
-      } catch (err) {
-        document.getElementById("resultado").innerText = "❌ Error al conectar: " + err.message;
+    const checkTronWebReady = setInterval(() => {
+      if (window.tronWeb && window.tronWeb.defaultAddress.base58 !== 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb') {
+        clearInterval(checkTronWebReady);
+        const address = tronWeb.defaultAddress.base58;
+        document.getElementById("resultado").innerHTML = `
+          ✅ Conectado con:<br><strong>${address}</strong>
+        `;
+      } else {
+        document.getElementById("resultado").innerText = "🔌 TronLink está abierto pero no ha autorizado aún.";
       }
-    }
+    }, 1000);
   </script>
 
 </body>
 </html>
+
